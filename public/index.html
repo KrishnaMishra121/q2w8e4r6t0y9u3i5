@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Playout Console</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%234f8cff'/%3E%3Cpath d='M6 4.5v7l5.5-3.5z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <section id="login" class="login" hidden>
+    <form id="login-form" class="login-card" autocomplete="off">
+      <div class="brand"><span class="brand-mark"><i data-lucide="radio"></i></span><span>Playout Console</span></div>
+      <h1>Secure sign in</h1>
+      <p class="muted">Enter the credentials configured for this server. First-run credentials are stored locally in the protected data directory.</p>
+      <label for="login-username">Username</label>
+      <input id="login-username" type="text" required autocomplete="off" spellcheck="false">
+      <label for="login-password">Password</label>
+      <input id="login-password" type="password" required autocomplete="off" spellcheck="false">
+      <p id="login-error" class="field-error" role="alert" hidden></p>
+      <button class="btn primary" type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <div id="shell" class="shell" hidden>
+    <nav id="sidebar" class="sidebar" aria-label="Main">
+      <div class="brand"><span class="brand-mark"><i data-lucide="radio"></i></span><span>Playout Console</span></div>
+      <ul id="nav" class="nav"></ul>
+      <div class="sidebar-foot">
+        <p class="muted small">Keep the stream key private. If it is ever exposed, reset it in YouTube Studio.</p>
+      </div>
+    </nav>
+    <div id="scrim" class="scrim" hidden></div>
+    <div class="content">
+      <header class="topbar">
+        <button id="menu-btn" class="icon-btn menu-btn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i data-lucide="menu"></i></button>
+        <h2 id="view-title" class="view-title">Dashboard</h2>
+        <div class="topbar-right">
+          <span id="conn-pill" class="pill" data-tip="Connection to the server"><span class="dot"></span><span id="conn-text">Connecting</span></span>
+          <span id="state-pill" class="pill" data-tip="Broadcast state"><span class="dot tally"></span><span id="state-text">Idle</span></span>
+          <button id="logout-btn" class="icon-btn" aria-label="Sign out" data-tip="Sign out"><i data-lucide="log-out"></i></button>
+        </div>
+      </header>
+      <main id="main" class="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <dialog id="dialog" class="dialog"></dialog>
+
+  <script src="/vendor/lucide.min.js"></script>
+  <script src="/core.js"></script>
+  <script src="/views-live.js"></script>
+  <script src="/views-manage.js"></script>
+  <script src="/boot.js"></script>
+</body>
+</html>

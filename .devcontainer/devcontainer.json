@@ -1,0 +1,8 @@
+{
+  "name": "Playout Console",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y ffmpeg && npm install",
+  "forwardPorts": [3000],
+  "portsAttributes": { "3000": { "label": "Playout Console", "visibility": "private" } },
+  "hostRequirements": { "cpus": 4 }
+}

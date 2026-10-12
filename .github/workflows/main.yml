@@ -1,0 +1,67 @@
+name: Six-hour Playout
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playout-live
+  cancel-in-progress: true
+
+jobs:
+  run-live-playout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out the deployment branch
+        uses: actions/checkout@v4
+        with:
+          ref: hidden-live-stream
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install FFmpeg and Cloudflare Tunnel
+        run: |
+          set -euo pipefail
+          curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+          printf 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared %s main\n' "$(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/cloudflared.list >/dev/null
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg cloudflared
+
+      - name: Install locked project dependencies
+        run: npm ci
+
+      - name: Start the private app and Cloudflare Tunnel
+        env:
+          APP_USERNAME: ${{ secrets.APP_USERNAME }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          STREAM_KEY: ${{ secrets.STREAM_KEY }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          HOST: 127.0.0.1
+          PORT: 3000
+          MAX_UPLOAD_MB: ${{ vars.MAX_UPLOAD_MB || '4096' }}
+          MAX_IMPORT_MB: ${{ vars.MAX_IMPORT_MB || '4096' }}
+          MIN_FREE_DISK_MB: ${{ vars.MIN_FREE_DISK_MB || '1024' }}
+        run: |
+          set -euo pipefail
+          : "${APP_USERNAME:?Configure the APP_USERNAME repository secret}"
+          : "${APP_PASSWORD:?Configure the APP_PASSWORD repository secret}"
+          : "${STREAM_KEY:?Configure the STREAM_KEY repository secret}"
+          : "${CLOUDFLARE_TUNNEL_TOKEN:?Configure the CLOUDFLARE_TUNNEL_TOKEN repository secret}"
+
+          token_file="$RUNNER_TEMP/cloudflared-token"
+          printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" >"$token_file"
+          chmod 600 "$token_file"
+          unset CLOUDFLARE_TUNNEL_TOKEN
+          env -u APP_USERNAME -u APP_PASSWORD -u STREAM_KEY cloudflared tunnel run --token-file "$token_file" >"$RUNNER_TEMP/cloudflared.log" 2>&1 &
+          tunnel_pid=$!
+          trap 'kill "$tunnel_pid" 2>/dev/null || true; rm -f -- "$token_file"' EXIT
+          sleep 5
+          kill -0 "$tunnel_pid"
+          npm start

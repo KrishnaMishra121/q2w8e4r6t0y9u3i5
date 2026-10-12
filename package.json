@@ -1,0 +1,19 @@
+{
+  "name": "yt-playout",
+  "version": "1.0.0",
+  "description": "Self-hosted live playout server: playlist + media library -> FFmpeg -> RTMP/RTMPS",
+  "private": true,
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "lucide": "^0.469.0",
+    "multer": "^2.4.0",
+    "youtube-dl-exec": "^3.1.17"
+  }
+}
