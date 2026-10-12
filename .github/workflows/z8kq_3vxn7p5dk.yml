@@ -18,7 +18,7 @@ jobs:
       - name: Check out the deployment branch
         uses: actions/checkout@v4
         with:
-          ref: q2w8e4r6t0y9u3i5
+          ref: q5w1e8r3t7y4u0i9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
